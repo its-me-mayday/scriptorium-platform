@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import OrderDraft
+from .serializers import OrderDraftSerializer
 
-# Create your views here.
+class OrderDraftViewSet(viewsets.ModelViewSet):
+    queryset = OrderDraft.objects.all()
+    serializer_class = OrderDraftSerializer

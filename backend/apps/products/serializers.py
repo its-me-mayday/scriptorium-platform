@@ -8,7 +8,6 @@ class ProductAliasSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     aliases = ProductAliasSerializer(many=True, read_only=True)
-    
     class Meta:
         model = Product
         fields = '__all__'

@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Conversation, Message
-from customers.models import Customer
+from .models import Message, Conversation
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
