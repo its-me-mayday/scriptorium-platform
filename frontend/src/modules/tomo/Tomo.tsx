@@ -1,67 +1,124 @@
-import React from 'react';
-import { Search, Filter, PackagePlus, MoreVertical, Tag } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Search, 
+  Filter, 
+  PackagePlus, 
+  MoreVertical, 
+  Tag, 
+  Layers,
+  ArrowRightLeft,
+  DollarSign,
+  Box
+} from 'lucide-react';
+import api from '../../services/api';
+import './Tomo.css';
+
+const ProductRow = ({ product }: any) => (
+  <div className="product-row-v2 animate-slide-up">
+    <div className="p-sku">
+      <code>{product.sku}</code>
+    </div>
+    <div className="p-main">
+      <div className="p-icon">
+        <Layers size={16} />
+      </div>
+      <div className="p-info">
+        <h3>{product.name}</h3>
+        <p>Category: {product.category}</p>
+      </div>
+    </div>
+    <div className="p-cat">
+      <span className="cat-badge">{product.category}</span>
+    </div>
+    <div className="p-price">
+      <DollarSign size={14} />
+      <span>{product.price}</span>
+    </div>
+    <div className="p-stock">
+      <div className={`stock-dot ${product.current_stock < 20 ? 'warning' : 'success'}`}></div>
+      <span>{product.current_stock} units</span>
+    </div>
+    <div className="p-actions">
+      <button className="btn-icon-v2">
+        <ArrowRightLeft size={14} />
+      </button>
+      <button className="btn-icon-v2">
+        <MoreVertical size={14} />
+      </button>
+    </div>
+  </div>
+);
 
 const Tomo = () => {
-  const products = [
-    { id: 1, sku: 'CARTA-A4-80', name: 'Carta A4 Navigator 80g', price: '€ 5.50', stock: 450, category: 'Cancelleria' },
-    { id: 2, sku: 'TONER-HP-305A', name: 'Toner HP 305A Black', price: '€ 85.00', stock: 12, category: 'Consumabili' },
-    { id: 3, sku: 'PEN-BLUE-BIC', name: 'Penne BIC Cristal Blu', price: '€ 0.50', stock: 1200, category: 'Cancelleria' },
-  ];
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await api.get('products/');
+        setProducts(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
-    <div className="module-container animate-fade-in">
+    <div className="tomo-module">
       <header className="module-header">
         <div>
-          <h1>Tomo</h1>
-          <p className="medieval-detail">L'inventario sacro delle merci, dei prezzi e degli alias.</p>
+          <h1 className="serif-title">Tomo dei Prodotti</h1>
+          <p className="text-secondary">The master catalog of items, pricing, and semantic aliases.</p>
         </div>
-        <button className="btn-primary">
-          <PackagePlus size={18} />
-          <span>Nuova Merce</span>
-        </button>
+        <div className="header-actions">
+          <button className="btn-outline">Bulk Update</button>
+          <button className="btn-premium">
+            <PackagePlus size={18} />
+            <span>Nuova Merce</span>
+          </button>
+        </div>
       </header>
 
-      <div className="inbox-toolbar glass">
-        <div className="search-box">
-          <Search size={18} className="search-icon" />
-          <input type="text" placeholder="Cerca nel catalogo..." />
+      <div className="tomo-toolbar glass-minimal">
+        <div className="search-box-v2">
+          <Search size={18} />
+          <input type="text" placeholder="Search catalog by name, SKU or alias..." />
         </div>
-        <div className="toolbar-actions">
-          <button className="btn-secondary">
-            <Filter size={18} />
-            <span>Filtra</span>
+        <div className="toolbar-filters">
+          <button className="btn-outline-small">
+            <Filter size={14} />
+            <span>Filter Catalog</span>
           </button>
         </div>
       </div>
 
-      <div className="glass message-grid">
-        <div className="message-list-header" style={{ gridTemplateColumns: '150px 1.5fr 1fr 100px 120px 80px' }}>
+      <div className="tomo-grid-v2 card-layered">
+        <div className="grid-header-v2">
           <span>SKU</span>
-          <span>Nome Prodotto</span>
-          <span>Categoria</span>
-          <span>Prezzo</span>
+          <span>Product Details</span>
+          <span>Category</span>
+          <span>Base Price</span>
           <span>Stock</span>
-          <span>Azione</span>
+          <span>Actions</span>
         </div>
-        {products.map((product) => (
-          <div key={product.id} className="message-row" style={{ gridTemplateColumns: '150px 1.5fr 1fr 100px 120px 80px' }}>
-            <div className="col-body" style={{ fontWeight: 600 }}>{product.sku}</div>
-            <div className="col-sender">
-              <Tag size={14} color="var(--accent-gold)" />
-              <span>{product.name}</span>
+        <div className="grid-body-v2">
+          {loading ? (
+            <div className="loading-v3">Consultando il Tomo...</div>
+          ) : products.length === 0 ? (
+            <div className="empty-state-v2">
+              <Box size={48} className="text-muted" />
+              <p>Il catalogo è vuoto. Inizia a registrare le tue merci.</p>
             </div>
-            <div className="col-body">
-              <span className="status-badge new" style={{ fontSize: '0.7rem' }}>{product.category}</span>
-            </div>
-            <div className="col-body">{product.price}</div>
-            <div className="col-body">{product.stock} pz</div>
-            <div className="col-actions">
-              <button className="btn-icon">
-                <MoreVertical size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
+          ) : (
+            products.map(product => (
+              <ProductRow key={product.id} product={product} />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

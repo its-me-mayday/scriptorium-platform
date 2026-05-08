@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   Menu
 } from 'lucide-react';
+import api from '../services/api';
 import './Sidebar.css';
 
 const SidebarItem = ({ icon: Icon, label, path, badge = 0, isCollapsed }: any) => {
@@ -37,6 +38,33 @@ const SidebarItem = ({ icon: Icon, label, path, badge = 0, isCollapsed }: any) =
 };
 
 const Sidebar = ({ isCollapsed, onToggle }: any) => {
+  const [counts, setCounts] = useState({
+    messages: 0,
+    drafts: 0
+  });
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [messages, drafts] = await Promise.all([
+          api.get('inbox/messages/'),
+          api.get('drafts/')
+        ]);
+        setCounts({
+          messages: messages.data.filter((m: any) => m.status === 'new').length,
+          drafts: drafts.data.length
+        });
+      } catch (error) {
+        console.error("Error fetching counts for sidebar:", error);
+      }
+    };
+    fetchCounts();
+    
+    // Refresh counts every 30 seconds for a "live" feel
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
@@ -70,9 +98,9 @@ const Sidebar = ({ isCollapsed, onToggle }: any) => {
         <div className="nav-group">
           {!isCollapsed && <label>Core</label>}
           <SidebarItem icon={LayoutDashboard} label="Overview" path="/" isCollapsed={isCollapsed} />
-          <SidebarItem icon={MessageSquare} label="Messages" path="/messaggero" badge={5} isCollapsed={isCollapsed} />
+          <SidebarItem icon={MessageSquare} label="Messages" path="/messaggero" badge={counts.messages} isCollapsed={isCollapsed} />
           <SidebarItem icon={Sparkles} label="Scriba AI" path="/scriba" isCollapsed={isCollapsed} />
-          <SidebarItem icon={PenTool} label="Validations" path="/calamaio" badge={2} isCollapsed={isCollapsed} />
+          <SidebarItem icon={PenTool} label="Validations" path="/calamaio" badge={counts.drafts} isCollapsed={isCollapsed} />
         </div>
 
         <div className="nav-group">

@@ -1,84 +1,116 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
-  Filter, 
   Plus, 
-  MoreVertical, 
-  MessageSquare, 
-  Send, 
+  Filter, 
+  Archive, 
   Trash2, 
-  Archive,
-  User,
-  ArrowLeft,
-  Sparkles
+  Sparkles, 
+  Send,
+  MoreVertical,
+  ChevronRight,
+  MessageSquare,
+  Clock,
+  Circle
 } from 'lucide-react';
+import api from '../../services/api';
 import './Inbox.css';
 
-const Inbox = () => {
-  const [selectedId, setSelectedId] = useState<number | null>(1);
-  const [messages] = useState([
-    { 
-      id: 1, 
-      sender: 'Studio Rossi', 
-      subject: 'Order for 20 pacchi carta A4', 
-      body: 'Buongiorno, vorremmo ordinare 20 pacchi di carta A4 Navigator 80g. Potete confermare la disponibilità per lunedì?',
-      time: '10:12', 
-      channel: 'WhatsApp',
-      status: 'new' 
-    },
-    { 
-      id: 2, 
-      sender: 'Officina Verde', 
-      subject: 'Inquiry: Toner HP 305A', 
-      body: 'Avete disponibilità per i toner HP 305A Black? Ce ne servirebbero 3 pezzi entro fine settimana.',
-      time: '09:45', 
-      channel: 'Telegram',
-      status: 'pending' 
-    },
-    { 
-      id: 3, 
-      sender: 'Marco Bianchi', 
-      subject: 'Order Confirmation', 
-      body: 'L\'ordine è giunto a destinazione, grazie mille per la celerità. Alla prossima!',
-      time: '09:30', 
-      channel: 'Email',
-      status: 'completed' 
-    },
-  ]);
+import { useNavigate } from 'react-router-dom';
 
-  const selectedMessage = messages.find(m => m.id === selectedId);
+const getChannelIcon = (channel: string) => {
+  switch (channel.toLowerCase()) {
+    case 'whatsapp': return <MessageSquare size={14} color="#25D366" />;
+    case 'telegram': return <Send size={14} color="#0088cc" />;
+    case 'email': return <Clock size={14} color="#ea4335" />;
+    default: return <MessageSquare size={14} />;
+  }
+};
+
+const Inbox = () => {
+  const navigate = useNavigate();
+  const [messages, setMessages] = useState<any[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await api.get('inbox/messages/');
+      const sorted = response.data.sort((a: any, b: any) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setMessages(sorted);
+      if (sorted.length > 0 && !selectedId) {
+        setSelectedId(sorted[0].id);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, []);
 
   const handleSimulateIncoming = async () => {
     const text = prompt("Inserisci il corpo della missiva simulata:");
     if (!text) return;
 
     try {
-      const response = await fetch('http://localhost:8000/api/inbox/messages/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sender: 'Test Mercante',
-          subject: 'Simulation Test',
-          body: text,
-          channel: 'WhatsApp',
-          status: 'new'
-        })
+      await api.post('inbox/messages/webhook/', {
+        sender: 'Test Mercante',
+        channel: 'WhatsApp',
+        text: text
       });
-
-      if (response.ok) {
-        alert("Missiva inviata con successo al Scriptorium!");
-        // In a real app, we would refresh the list here
-      } else {
-        alert("Errore nell'invio della missiva.");
-      }
+      fetchMessages();
     } catch (error) {
-      console.error(error);
-      alert("Errore di connessione al backend.");
+      alert("Errore nell'invio della missiva.");
     }
   };
 
+  const handleGenerateDraft = async () => {
+    if (!selectedMessage) return;
+    
+    setIsGenerating(true);
+    
+    // Simula l'elaborazione dell'Alchimista Scriba
+    setTimeout(async () => {
+      try {
+        // In una versione reale, qui chiameremmo un endpoint AI che restituisce il JSON della bozza
+        await api.post('drafts/', {
+          message: selectedMessage.id,
+          status: 'pending',
+          confidence: 0.85
+        });
+        
+        setIsGenerating(false);
+        navigate('/calamaio');
+      } catch (error) {
+        console.error(error);
+        setIsGenerating(false);
+        alert("Scriba ha incontrato un errore nell'interpretazione.");
+      }
+    }, 1500);
+  };
+
+  const selectedMessage = messages.find(m => m.id === selectedId);
+
+  if (loading) return <div className="loading-v3">Attingendo dati dal Scriptorium...</div>;
+
   return (
     <div className="inbox-module animate-fade-in">
+      {isGenerating && (
+        <div className="scriba-overlay">
+          <div className="scriba-loader">
+            <Sparkles size={48} className="animate-pulse" />
+            <h2 className="serif-title">Scriba sta interpretando la missiva...</h2>
+            <p>L'Alchimista sta estraendo i dati per il Calamaio.</p>
+          </div>
+        </div>
+      )}
       <div className="inbox-sidebar glass-minimal">
         <div className="inbox-header">
           <h1>Inbox</h1>
@@ -93,48 +125,58 @@ const Inbox = () => {
         </div>
         
         <div className="inbox-search">
-          <Search size={14} className="search-icon" />
+          <Search size={18} className="search-icon" />
           <input type="text" placeholder="Search messages..." />
         </div>
 
-        <div className="message-list-minimal">
-          {messages.map((msg) => (
-            <div 
-              key={msg.id} 
-              className={`msg-preview ${selectedId === msg.id ? 'active' : ''}`}
-              onClick={() => setSelectedId(msg.id)}
-            >
-              <div className="msg-preview-header">
-                <span className="msg-sender">{msg.sender}</span>
-                <span className="msg-time">{msg.time}</span>
+        <div className="message-list">
+          {messages.length === 0 ? (
+            <div className="empty-state">Nessuna missiva ricevuta.</div>
+          ) : (
+            messages.map((msg) => (
+              <div 
+                key={msg.id} 
+                className={`message-preview ${selectedId === msg.id ? 'active' : ''} ${msg.status === 'new' ? 'unread' : ''}`}
+                onClick={() => setSelectedId(msg.id)}
+              >
+                <div className="msg-header">
+                  <div className="sender-group">
+                    {getChannelIcon(msg.channel)}
+                    <span className="msg-sender">{msg.sender}</span>
+                  </div>
+                  <span className="msg-time">{new Date(msg.received_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+                <div className="msg-body">{msg.body}</div>
+                <div className="msg-footer">
+                  <span className={`status-tag ${msg.status}`}>{msg.status}</span>
+                  <span className="channel-tag">{msg.channel}</span>
+                </div>
               </div>
-              <p className="msg-subject">{msg.subject}</p>
-              <div className="msg-preview-footer">
-                <span className={`status-tag ${msg.status}`}>{msg.status}</span>
-                <span className="msg-channel">{msg.channel}</span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
-      <div className="inbox-detail">
+      <div className="inbox-detail glass-minimal">
         {selectedMessage ? (
           <>
-            <div className="detail-header glass">
-              <div className="detail-user-info">
-                <div className="user-avatar-large">
-                  <User size={20} />
+            <div className="detail-header">
+              <div className="sender-profile">
+                <div className="profile-avatar">
+                  {selectedMessage.sender[0]}
                 </div>
-                <div>
-                  <h3>{selectedMessage.sender}</h3>
-                  <p className="text-secondary">via {selectedMessage.channel}</p>
+                <div className="sender-info">
+                  <h2>{selectedMessage.sender}</h2>
+                  <div className="channel-meta">
+                    {getChannelIcon(selectedMessage.channel)}
+                    <span>via {selectedMessage.channel}</span>
+                  </div>
                 </div>
               </div>
               <div className="detail-actions">
                 <button className="btn-icon-v2"><Archive size={18} /></button>
                 <button className="btn-icon-v2"><Trash2 size={18} /></button>
-                <button className="btn-premium">
+                <button className="btn-premium" onClick={handleGenerateDraft}>
                   <Sparkles size={16} />
                   <span>Generate Draft</span>
                 </button>
@@ -144,7 +186,7 @@ const Inbox = () => {
             <div className="detail-body">
               <div className="message-content glass-minimal">
                 <div className="content-meta">
-                  <span className="content-date">Today, {selectedMessage.time}</span>
+                  <span className="content-date">{new Date(selectedMessage.received_at).toLocaleString()}</span>
                 </div>
                 <h2 className="content-subject">{selectedMessage.subject}</h2>
                 <p className="content-text">{selectedMessage.body}</p>
@@ -167,7 +209,7 @@ const Inbox = () => {
         ) : (
           <div className="no-selection">
             <MessageSquare size={48} className="text-muted" />
-            <p>Select a message to view details</p>
+            <p>Seleziona una missiva per leggerne il contenuto</p>
           </div>
         )}
       </div>
