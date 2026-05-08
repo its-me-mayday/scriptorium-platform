@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { 
   ShoppingBag, 
   MessageCircle, 
@@ -11,25 +12,27 @@ import {
 } from 'lucide-react';
 import './Dashboard.css';
 
-const StatCard = ({ icon: Icon, label, value, trend, color }: any) => (
+const StatCard = ({ icon: Icon, label, value, trend, color, path }: any) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="glass stat-card"
+    whileHover={{ y: -5 }}
   >
-    <div className="stat-header">
-      <div className={`stat-icon-bg ${color}`}>
-        <Icon size={20} className="stat-icon" />
+    <Link to={path} className="glass stat-card" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+      <div className="stat-header">
+        <div className={`stat-icon-bg ${color}`}>
+          <Icon size={20} className="stat-icon" />
+        </div>
+        <div className="stat-trend">
+          <ArrowUpRight size={14} />
+          <span>{trend}</span>
+        </div>
       </div>
-      <div className="stat-trend">
-        <ArrowUpRight size={14} />
-        <span>{trend}</span>
+      <div className="stat-body">
+        <p className="stat-label">{label}</p>
+        <h3 className="stat-value">{value}</h3>
       </div>
-    </div>
-    <div className="stat-body">
-      <p className="stat-label">{label}</p>
-      <h3 className="stat-value">{value}</h3>
-    </div>
+    </Link>
   </motion.div>
 );
 
@@ -54,6 +57,7 @@ const Dashboard = () => {
           value="24" 
           trend="+12%" 
           color="gold" 
+          path="/calamaio"
         />
         <StatCard 
           icon={MessageCircle} 
@@ -61,6 +65,7 @@ const Dashboard = () => {
           value="15" 
           trend="+5%" 
           color="blue" 
+          path="/messaggero"
         />
         <StatCard 
           icon={CheckCircle2} 
@@ -68,6 +73,7 @@ const Dashboard = () => {
           value="8" 
           trend="-2%" 
           color="green" 
+          path="/calamaio"
         />
         <StatCard 
           icon={Clock} 
@@ -75,6 +81,7 @@ const Dashboard = () => {
           value="12" 
           trend="+18%" 
           color="purple" 
+          path="/cronica"
         />
       </div>
 
@@ -82,7 +89,7 @@ const Dashboard = () => {
         <section className="glass section-card recent-messages">
           <div className="section-header">
             <h3>Messaggero — Ultimi Messaggi</h3>
-            <button className="btn-text">Vedi tutti</button>
+            <Link to="/messaggero" className="btn-text">Vedi tutti</Link>
           </div>
           <div className="message-list">
             {[
@@ -90,7 +97,7 @@ const Dashboard = () => {
               { id: 2, sender: 'Officina Verde', body: 'Avete disponibilità per i toner HP?', time: '09:45', channel: 'Telegram' },
               { id: 3, sender: 'Marco Bianchi', body: 'Ordine confermato per lunedì, grazie!', time: '09:30', channel: 'Email' },
             ].map(msg => (
-              <div key={msg.id} className="message-item">
+              <Link key={msg.id} to="/messaggero" className="message-item" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="message-info">
                   <p className="message-sender">{msg.sender}</p>
                   <p className="message-body">{msg.body}</p>
@@ -99,7 +106,7 @@ const Dashboard = () => {
                   <span className="message-time">{msg.time}</span>
                   <span className={`channel-tag ${msg.channel.toLowerCase()}`}>{msg.channel}</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -107,7 +114,7 @@ const Dashboard = () => {
         <section className="glass section-card drafts-validation">
           <div className="section-header">
             <h3>Calamaio — Bozze da confermare</h3>
-            <button className="btn-text">Vedi tutte</button>
+            <Link to="/calamaio" className="btn-text">Vedi tutte</Link>
           </div>
           <div className="draft-list">
              {[
@@ -115,7 +122,7 @@ const Dashboard = () => {
               { id: 2, customer: 'Farmacia Centrale', items: 1, total: '€ 45.00', confidence: 0.94 },
               { id: 3, customer: 'Ristorante Da Mario', items: 5, total: '€ 320.00', confidence: 0.65 },
             ].map(draft => (
-              <div key={draft.id} className="draft-item">
+              <Link key={draft.id} to="/calamaio" className="draft-item" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="draft-details">
                   <p className="draft-customer">{draft.customer}</p>
                   <p className="draft-meta">{draft.items} prodotti • {draft.total}</p>
@@ -124,11 +131,11 @@ const Dashboard = () => {
                   <div className="confidence-indicator">
                     <div className="confidence-bar" style={{ width: `${draft.confidence * 100}%` }}></div>
                   </div>
-                  <button className="btn-icon">
+                  <div className="btn-icon">
                     <ChevronRight size={18} />
-                  </button>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
