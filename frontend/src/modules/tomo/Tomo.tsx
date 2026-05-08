@@ -13,11 +13,11 @@ const Tomo = () => {
       <header className="module-header">
         <div>
           <h1>Tomo</h1>
-          <p className="text-secondary">Catalogo prodotti, alias e listini.</p>
+          <p className="medieval-detail">L'inventario sacro delle merci, dei prezzi e degli alias.</p>
         </div>
         <button className="btn-primary">
           <PackagePlus size={18} />
-          <span>Nuovo Prodotto</span>
+          <span>Nuova Merce</span>
         </button>
       </header>
 

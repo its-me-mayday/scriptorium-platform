@@ -13,11 +13,11 @@ const Archivio = () => {
       <header className="module-header">
         <div>
           <h1>Archivio</h1>
-          <p className="text-secondary">Anagrafica clienti e storico relazioni.</p>
+          <p className="medieval-detail">Il grande registro dei mercanti e dei clienti dello Scriptorium.</p>
         </div>
         <button className="btn-primary">
           <UserPlus size={18} />
-          <span>Nuovo Cliente</span>
+          <span>Nuovo Mercante</span>
         </button>
       </header>
 

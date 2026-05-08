@@ -26,11 +26,11 @@ const Inbox = () => {
       <header className="module-header">
         <div>
           <h1>Messaggero</h1>
-          <p className="text-secondary">Gestisci le conversazioni e genera bozze d'ordine.</p>
+          <p className="medieval-detail">Il crocevia delle missive e delle richieste esterne.</p>
         </div>
         <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
           <Plus size={18} />
-          <span>Nuovo Messaggio</span>
+          <span>Nuova Missiva</span>
         </button>
       </header>
 

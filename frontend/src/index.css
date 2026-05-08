@@ -1,24 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap');
 
 :root {
-  --bg-main: #0f172a;
-  --bg-sidebar: #1e293b;
-  --bg-card: rgba(30, 41, 59, 0.7);
-  --accent-gold: #f59e0b;
-  --accent-gold-glow: rgba(245, 158, 11, 0.2);
-  --text-primary: #f8fafc;
+  --bg-main: #0c0d0f; /* Deep Ink */
+  --bg-sidebar: #121417; 
+  --bg-card: rgba(26, 28, 33, 0.85);
+  --accent-gold: #c6a361; /* Aged Gold */
+  --accent-gold-glow: rgba(198, 163, 97, 0.15);
+  --text-primary: #e2e8f0;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --success: #10b981;
+  --text-muted: #4b5563;
+  --border-color: rgba(198, 163, 97, 0.12); /* Subtle Gold border */
+  --success: #84cc16; /* Medieval Green */
   --warning: #f59e0b;
   --error: #ef4444;
   --info: #3b82f6;
   
-  --sidebar-width: 260px;
+  --sidebar-width: 280px;
   --header-height: 70px;
   
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -31,29 +31,48 @@
 body {
   font-family: 'Outfit', sans-serif;
   background-color: var(--bg-main);
+  background-image: url("https://www.transparenttextures.com/patterns/dark-matter.png"); /* Subtle texture */
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 h1, h2, h3, .scriptorium-font {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.medieval-touch {
   font-family: 'Playfair Display', serif;
-  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-/* Glassmorphism Utility */
+.medieval-detail {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--accent-gold);
+}
+
+/* Glassmorphism with Medieval touch */
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: 4px; /* More classic angular look */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(198,163,97,0.2), transparent, rgba(198,163,97,0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* Scrollbar */

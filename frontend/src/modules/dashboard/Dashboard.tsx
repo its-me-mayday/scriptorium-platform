@@ -38,22 +38,22 @@ const StatCard = ({ icon: Icon, label, value, trend, color, path }: any) => (
 
 const Dashboard = () => {
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container animate-fade-in">
       <header className="dashboard-header">
         <div>
-          <h1 className="animate-fade-in">Pace e Bene, Luca</h1>
-          <p className="text-secondary">Ecco cosa sta succedendo nello Scriptorium oggi.</p>
+          <h1 className="scriptorium-font">Pace e Bene, Luca</h1>
+          <p className="medieval-detail">Scriba et Magister dello Scriptorium</p>
         </div>
-        <div className="header-date">
-          <Clock size={16} />
-          <span>Venerdì, 8 Maggio 2026</span>
+        <div className="header-date glass">
+          <Clock size={16} color="var(--accent-gold)" />
+          <span>Anno Domini MMXXVI — VIII Maggio</span>
         </div>
       </header>
 
       <div className="stats-grid">
         <StatCard 
           icon={ShoppingBag} 
-          label="Ordini Oggi" 
+          label="Ordini del Giorno" 
           value="24" 
           trend="+12%" 
           color="gold" 
@@ -61,7 +61,7 @@ const Dashboard = () => {
         />
         <StatCard 
           icon={MessageCircle} 
-          label="Messaggi Nuovi" 
+          label="Missive Nuove" 
           value="15" 
           trend="+5%" 
           color="blue" 
@@ -69,7 +69,7 @@ const Dashboard = () => {
         />
         <StatCard 
           icon={CheckCircle2} 
-          label="Bozze da Validare" 
+          label="Bozze da Sigillare" 
           value="8" 
           trend="-2%" 
           color="green" 
@@ -77,7 +77,7 @@ const Dashboard = () => {
         />
         <StatCard 
           icon={Clock} 
-          label="In Consegna" 
+          label="In Cammino" 
           value="12" 
           trend="+18%" 
           color="purple" 
@@ -88,14 +88,14 @@ const Dashboard = () => {
       <div className="dashboard-grid">
         <section className="glass section-card recent-messages">
           <div className="section-header">
-            <h3>Messaggero — Ultimi Messaggi</h3>
-            <Link to="/messaggero" className="btn-text">Vedi tutti</Link>
+            <h3><MessageCircle size={18} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} /> Messaggero — Ultime Missive</h3>
+            <Link to="/messaggero" className="btn-text">Sfoglia Archivio</Link>
           </div>
           <div className="message-list">
             {[
-              { id: 1, sender: 'Studio Rossi', body: 'Ciao, mi mandi 20 pacchi di carta A4...', time: '10:12', channel: 'WhatsApp' },
-              { id: 2, sender: 'Officina Verde', body: 'Avete disponibilità per i toner HP?', time: '09:45', channel: 'Telegram' },
-              { id: 3, sender: 'Marco Bianchi', body: 'Ordine confermato per lunedì, grazie!', time: '09:30', channel: 'Email' },
+              { id: 1, sender: 'Studio Rossi', body: 'Saluti, necessitiamo di 20 risme di carta...', time: '10:12', channel: 'WhatsApp' },
+              { id: 2, sender: 'Officina Verde', body: 'Avete in deposito i toner per HP?', time: '09:45', channel: 'Telegram' },
+              { id: 3, sender: 'Marco Bianchi', body: 'L\'ordine è giunto a destinazione, grazie.', time: '09:30', channel: 'Email' },
             ].map(msg => (
               <Link key={msg.id} to="/messaggero" className="message-item" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="message-info">
@@ -113,8 +113,8 @@ const Dashboard = () => {
 
         <section className="glass section-card drafts-validation">
           <div className="section-header">
-            <h3>Calamaio — Bozze da confermare</h3>
-            <Link to="/calamaio" className="btn-text">Vedi tutte</Link>
+            <h3><PenTool size={18} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} /> Calamaio — Bozze Pendenti</h3>
+            <Link to="/calamaio" className="btn-text">Valida Bozze</Link>
           </div>
           <div className="draft-list">
              {[
@@ -125,7 +125,7 @@ const Dashboard = () => {
               <Link key={draft.id} to="/calamaio" className="draft-item" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="draft-details">
                   <p className="draft-customer">{draft.customer}</p>
-                  <p className="draft-meta">{draft.items} prodotti • {draft.total}</p>
+                  <p className="draft-meta">{draft.items} pergamene • {draft.total}</p>
                 </div>
                 <div className="draft-actions">
                   <div className="confidence-indicator">
