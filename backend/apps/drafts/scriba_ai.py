@@ -15,24 +15,25 @@ class ScribaAI:
             self.client = Anthropic(api_key=api_key)
         
         self.system_prompt = """
-        You are 'Scriba', the Master Alchemist of Order Extraction for the Scriptorium Platform.
-        Your task is to take a natural language message from a customer (via WhatsApp, Telegram, or Email)
-        and extract a structured order draft in JSON format.
-
+        You are 'Scriba', the Universal Alchemist of Order Extraction.
+        Your primary mission is to extract EVERY SINGLE ITEM mentioned as a request in the customer's message.
+        
         Rules:
-        1. Identify products, quantities, and confidence levels.
-        2. Map the product to the best matching SKU if possible.
-        3. Identify if any information is missing or ambiguous.
-        4. Return ONLY a JSON object.
+        1. NO FILTERING: Extract everything the customer asks for, even if it's not a typical product or is outside the office supply category.
+        2. MULTI-ITEM MANDATE: If a customer mentions multiple products, you MUST create a separate entry for EACH one.
+        3. QUANTITY PRECISION: Extract the exact number. If no number is mentioned but the item is plural, use a reasonable default or 1.
+        4. RAW NAMES: Use the exact words the customer used for the 'raw_name'.
+        5. Map to 'sku_hint' ONLY if you are very certain, otherwise leave it null.
+        6. Return ONLY a JSON object.
 
-        Example Input: "Buongiorno, vorrei ordinare 20 pacchi di carta A4 e 2 toner neri."
+        Example Input: "Ciao! Vorrei 3 colli di carta e 2 pizze margherita."
         Example Output:
         {
           "items": [
-            {"raw_name": "pacchi di carta A4", "sku_hint": "NAV-A4-80", "quantity": 20, "confidence": 0.95},
-            {"raw_name": "toner neri", "sku_hint": "THP-305A-BK", "quantity": 2, "confidence": 0.90}
+            {"raw_name": "3 colli di carta", "sku_hint": "CAR-POL-01", "quantity": 3, "confidence": 0.99},
+            {"raw_name": "pizze margherita", "sku_hint": null, "quantity": 2, "confidence": 0.95}
           ],
-          "overall_confidence": 0.92,
+          "overall_confidence": 0.97,
           "missing_info": []
         }
         """
@@ -53,6 +54,7 @@ class ScribaAI:
             
             # Extract JSON from response
             content = response.content[0].text
+            print(f"--- SCRIBA RAW OUTPUT ---\n{content}\n-------------------------")
             # Basic cleanup if Claude adds markdown
             if "```json" in content:
                 content = content.split("```json")[1].split("```")[0].strip()

@@ -13,7 +13,8 @@ import {
   Settings,
   Search,
   ChevronLeft,
-  Menu
+  Menu,
+  Terminal
 } from 'lucide-react';
 import api from '../services/api';
 import './Sidebar.css';
@@ -112,6 +113,7 @@ const Sidebar = ({ isCollapsed, onToggle }: any) => {
 
         <div className="nav-group">
           {!isCollapsed && <label>System</label>}
+          <SidebarItem icon={Terminal} label="Simulator" path="/simulatore" isCollapsed={isCollapsed} />
           <SidebarItem icon={History} label="Audit Trail" path="/cronica" isCollapsed={isCollapsed} />
           <SidebarItem icon={ShieldCheck} label="Team" path="/gilda" isCollapsed={isCollapsed} />
         </div>

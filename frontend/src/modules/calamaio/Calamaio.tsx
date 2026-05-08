@@ -36,6 +36,19 @@ const Calamaio = () => {
     }
   };
 
+  const handleDiscardDraft = async () => {
+    if (!selectedId) return;
+    if (!confirm("Sei sicuro di voler scartare questa analisi? Il messaggio originale resterà nell'Inbox.")) return;
+
+    try {
+      await api.delete(`drafts/${selectedId}/`);
+      setSelectedId(null);
+      fetchDrafts();
+    } catch (error) {
+      alert("Errore nello scarto della bozza.");
+    }
+  };
+
   useEffect(() => {
     fetchDrafts();
   }, []);
@@ -90,6 +103,9 @@ const Calamaio = () => {
                 <p>Assigned to <strong>Luca Maggio</strong> • <span className="text-secondary">{selectedDraft.message_details?.sender}</span></p>
               </div>
               <div className="w-actions">
+                <button className="btn-icon-v2" onClick={handleDiscardDraft} title="Scarta Analisi">
+                  <Trash2 size={16} />
+                </button>
                 <button className="btn-outline">
                   <MessageCircle size={16} />
                   <span>Ask Customer</span>

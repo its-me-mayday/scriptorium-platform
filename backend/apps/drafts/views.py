@@ -11,6 +11,13 @@ class OrderDraftViewSet(viewsets.ModelViewSet):
     queryset = OrderDraft.objects.all()
     serializer_class = OrderDraftSerializer
 
+    def create(self, request, *args, **kwargs):
+        # Delete existing draft for this message before serializer validation
+        message_id = request.data.get('message')
+        if message_id:
+            OrderDraft.objects.filter(message_id=message_id).delete()
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         draft = serializer.save()
         self.perform_ai_extraction(draft)

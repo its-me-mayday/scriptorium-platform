@@ -96,6 +96,19 @@ const Inbox = () => {
     }, 1500);
   };
 
+  const handleDeleteMessage = async () => {
+    if (!selectedId) return;
+    if (!confirm("Sei sicuro di voler distruggere questa missiva?")) return;
+
+    try {
+      await api.delete(`inbox/messages/${selectedId}/`);
+      setSelectedId(null);
+      fetchMessages();
+    } catch (error) {
+      alert("Errore nella distruzione della missiva.");
+    }
+  };
+
   const selectedMessage = messages.find(m => m.id === selectedId);
 
   if (loading) return <div className="loading-v3">Attingendo dati dal Scriptorium...</div>;
@@ -106,7 +119,7 @@ const Inbox = () => {
         <div className="scriba-overlay">
           <div className="scriba-loader">
             <Sparkles size={48} className="animate-pulse" />
-            <h2 className="serif-title">Scriba sta interpretando la missiva...</h2>
+            <h2 className="serif-title">Scriba sta analizzando la missiva...</h2>
             <p>L'Alchimista sta estraendo i dati per il Calamaio.</p>
           </div>
         </div>
@@ -175,10 +188,10 @@ const Inbox = () => {
               </div>
               <div className="detail-actions">
                 <button className="btn-icon-v2"><Archive size={18} /></button>
-                <button className="btn-icon-v2"><Trash2 size={18} /></button>
+                <button className="btn-icon-v2" onClick={handleDeleteMessage}><Trash2 size={18} /></button>
                 <button className="btn-premium" onClick={handleGenerateDraft}>
                   <Sparkles size={16} />
-                  <span>Generate Draft</span>
+                  <span>Analisi Scriba</span>
                 </button>
               </div>
             </div>

@@ -10,6 +10,7 @@ import Calamaio from './modules/calamaio/Calamaio';
 import Cronica from './modules/cronica/Cronica';
 import Emporio from './modules/emporio/Emporio';
 import Gilda from './modules/gilda/Gilda';
+import Simulatore from './modules/simulatore/Simulatore';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/emporio" element={<Emporio />} />
           <Route path="/cronica" element={<Cronica />} />
           <Route path="/gilda" element={<Gilda />} />
+          <Route path="/simulatore" element={<Simulatore />} />
         </Routes>
       </Layout>
     </Router>
