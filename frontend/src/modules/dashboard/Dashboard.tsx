@@ -7,135 +7,107 @@ import {
   CheckCircle2, 
   Clock, 
   ArrowUpRight, 
-  MoreVertical,
-  ChevronRight
+  TrendingUp,
+  Plus,
+  ArrowRight
 } from 'lucide-react';
 import './Dashboard.css';
 
-const StatCard = ({ icon: Icon, label, value, trend, color, path }: any) => (
+const StatCard = ({ icon: Icon, label, value, trend, delay }: any) => (
   <motion.div 
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 15 }}
     animate={{ opacity: 1, y: 0 }}
-    whileHover={{ y: -5 }}
+    transition={{ delay, duration: 0.5 }}
+    className="stat-card-v3"
   >
-    <Link to={path} className="glass stat-card" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-      <div className="stat-header">
-        <div className={`stat-icon-bg ${color}`}>
-          <Icon size={20} className="stat-icon" />
+    <div className="card-inner">
+      <div className="stat-header-v3">
+        <div className="stat-icon-v3">
+          <Icon size={20} strokeWidth={1.5} />
         </div>
-        <div className="stat-trend">
-          <ArrowUpRight size={14} />
+        <div className="stat-trend-v3">
+          <TrendingUp size={12} />
           <span>{trend}</span>
         </div>
       </div>
-      <div className="stat-body">
-        <p className="stat-label">{label}</p>
-        <h3 className="stat-value">{value}</h3>
+      <div className="stat-body-v3">
+        <p className="stat-label-v3">{label}</p>
+        <h3 className="stat-value-v3">{value}</h3>
       </div>
-    </Link>
+    </div>
   </motion.div>
 );
 
 const Dashboard = () => {
   return (
-    <div className="dashboard-container animate-fade-in">
-      <header className="dashboard-header">
-        <div>
-          <h1 className="scriptorium-font">Pace e Bene, Luca</h1>
-          <p className="medieval-detail">Scriba et Magister dello Scriptorium</p>
+    <div className="dashboard-v3 animate-slide-up">
+      <header className="page-header-v3">
+        <div className="welcome-text">
+          <h1 className="serif-title">L'Assemblea dello Scriptorium</h1>
+          <p>Governance and performance overview for Anno Domini MMXXVI</p>
         </div>
-        <div className="header-date glass">
-          <Clock size={16} color="var(--accent-gold)" />
-          <span>Anno Domini MMXXVI — VIII Maggio</span>
+        <div className="page-actions-v3">
+          <button className="btn-outline">Download Annali</button>
+          <button className="btn-premium">
+            <Plus size={18} />
+            <span>Nuovo Ordine</span>
+          </button>
         </div>
       </header>
 
-      <div className="stats-grid">
-        <StatCard 
-          icon={ShoppingBag} 
-          label="Ordini del Giorno" 
-          value="24" 
-          trend="+12%" 
-          color="gold" 
-          path="/calamaio"
-        />
-        <StatCard 
-          icon={MessageCircle} 
-          label="Missive Nuove" 
-          value="15" 
-          trend="+5%" 
-          color="blue" 
-          path="/messaggero"
-        />
-        <StatCard 
-          icon={CheckCircle2} 
-          label="Bozze da Sigillare" 
-          value="8" 
-          trend="-2%" 
-          color="green" 
-          path="/calamaio"
-        />
-        <StatCard 
-          icon={Clock} 
-          label="In Cammino" 
-          value="12" 
-          trend="+18%" 
-          color="purple" 
-          path="/cronica"
-        />
+      <div className="stats-grid-v3">
+        <StatCard icon={ShoppingBag} label="Total Orders" value="1,284" trend="+12.5%" delay={0.1} />
+        <StatCard icon={MessageCircle} label="Missives" value="24" trend="+8.2%" delay={0.2} />
+        <StatCard icon={CheckCircle2} label="Validated" value="95%" trend="+2.4%" delay={0.3} />
+        <StatCard icon={Clock} label="Avg Delay" value="14h" trend="-4.1%" delay={0.4} />
       </div>
 
-      <div className="dashboard-grid">
-        <section className="glass section-card recent-messages">
-          <div className="section-header">
-            <h3><MessageCircle size={18} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} /> Messaggero — Ultime Missive</h3>
-            <Link to="/messaggero" className="btn-text">Sfoglia Archivio</Link>
+      <div className="content-grid-v3">
+        <section className="dashboard-section-v3 card-layered">
+          <div className="section-header-v3">
+            <h2 className="serif-title">Recent Activity</h2>
+            <Link to="/cronica" className="view-all-link">
+              <span>Timeline</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
-          <div className="message-list">
+          <div className="activity-list-v3">
             {[
-              { id: 1, sender: 'Studio Rossi', body: 'Saluti, necessitiamo di 20 risme di carta...', time: '10:12', channel: 'WhatsApp' },
-              { id: 2, sender: 'Officina Verde', body: 'Avete in deposito i toner per HP?', time: '09:45', channel: 'Telegram' },
-              { id: 3, sender: 'Marco Bianchi', body: 'L\'ordine è giunto a destinazione, grazie.', time: '09:30', channel: 'Email' },
-            ].map(msg => (
-              <Link key={msg.id} to="/messaggero" className="message-item" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="message-info">
-                  <p className="message-sender">{msg.sender}</p>
-                  <p className="message-body">{msg.body}</p>
+              { id: 1, user: 'Marco', action: 'convalidated draft', target: 'DFT-092', time: '12m ago', color: '#818cf8' },
+              { id: 2, user: 'Scriba', action: 'generated proposal', target: 'Studio Rossi', time: '45m ago', color: '#4ade80' },
+              { id: 3, user: 'System', action: 'synchronized catalog', target: 'Shopify v2', time: '2h ago', color: '#fb7185' },
+            ].map(item => (
+              <div key={item.id} className="activity-item-v3">
+                <div className="user-initial" style={{ background: item.color }}>{item.user[0]}</div>
+                <div className="activity-content-v3">
+                  <p><strong>{item.user}</strong> {item.action} <span>{item.target}</span></p>
+                  <span className="activity-time-v3">{item.time}</span>
                 </div>
-                <div className="message-meta">
-                  <span className="message-time">{msg.time}</span>
-                  <span className={`channel-tag ${msg.channel.toLowerCase()}`}>{msg.channel}</span>
-                </div>
-              </Link>
+              </div>
             ))}
           </div>
         </section>
 
-        <section className="glass section-card drafts-validation">
-          <div className="section-header">
-            <h3><PenTool size={18} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} /> Calamaio — Bozze Pendenti</h3>
-            <Link to="/calamaio" className="btn-text">Valida Bozze</Link>
+        <section className="dashboard-section-v3 card-layered">
+          <div className="section-header-v3">
+            <h2 className="serif-title">Inbound Channels</h2>
+            <span className="text-muted">Last 24 hours</span>
           </div>
-          <div className="draft-list">
-             {[
-              { id: 1, customer: 'Studio Rossi', items: 3, total: '€ 145.00', confidence: 0.88 },
-              { id: 2, customer: 'Farmacia Centrale', items: 1, total: '€ 45.00', confidence: 0.94 },
-              { id: 3, customer: 'Ristorante Da Mario', items: 5, total: '€ 320.00', confidence: 0.65 },
-            ].map(draft => (
-              <Link key={draft.id} to="/calamaio" className="draft-item" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="draft-details">
-                  <p className="draft-customer">{draft.customer}</p>
-                  <p className="draft-meta">{draft.items} pergamene • {draft.total}</p>
+          <div className="channels-grid-v3">
+            {[
+              { name: 'WhatsApp', volume: '65%', color: '#25D366' },
+              { name: 'Telegram', volume: '20%', color: '#0088cc' },
+              { name: 'Direct Email', volume: '15%', color: '#fb7185' },
+            ].map(channel => (
+              <div key={channel.name} className="channel-bar-v3">
+                <div className="channel-info-v3">
+                  <span>{channel.name}</span>
+                  <span>{channel.volume}</span>
                 </div>
-                <div className="draft-actions">
-                  <div className="confidence-indicator">
-                    <div className="confidence-bar" style={{ width: `${draft.confidence * 100}%` }}></div>
-                  </div>
-                  <div className="btn-icon">
-                    <ChevronRight size={18} />
-                  </div>
+                <div className="progress-bg-v3">
+                  <div className="progress-fill-v3" style={{ width: channel.volume, background: channel.color }}></div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </section>

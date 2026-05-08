@@ -1,15 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="app-container">
-      <Sidebar />
-      <main className="main-content">
+    <div className={`app-container ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <Sidebar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
+      <main className="main-content animate-fade-in">
         {children}
       </main>
     </div>

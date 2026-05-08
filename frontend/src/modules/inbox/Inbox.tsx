@@ -1,133 +1,176 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Plus, 
   Search, 
   Filter, 
+  Plus, 
+  MoreVertical, 
   MessageSquare, 
-  MoreVertical,
-  X,
-  Send,
+  Send, 
+  Trash2, 
+  Archive,
   User,
-  Hash
+  ArrowLeft,
+  Sparkles
 } from 'lucide-react';
 import './Inbox.css';
 
 const Inbox = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'Studio Rossi', body: 'Ciao, mi mandi 20 pacchi di carta A4 e 5 toner come l\'altra volta?', time: '10:12', channel: 'WhatsApp', status: 'new' },
-    { id: 2, sender: 'Officina Verde', body: 'Avete disponibilità per i toner HP?', time: '09:45', channel: 'Telegram', status: 'analyzing' },
-    { id: 3, sender: 'Marco Bianchi', body: 'Ordine confermato per lunedì, grazie!', time: '09:30', channel: 'Email', status: 'converted' },
+  const [selectedId, setSelectedId] = useState<number | null>(1);
+  const [messages] = useState([
+    { 
+      id: 1, 
+      sender: 'Studio Rossi', 
+      subject: 'Order for 20 pacchi carta A4', 
+      body: 'Buongiorno, vorremmo ordinare 20 pacchi di carta A4 Navigator 80g. Potete confermare la disponibilità per lunedì?',
+      time: '10:12', 
+      channel: 'WhatsApp',
+      status: 'new' 
+    },
+    { 
+      id: 2, 
+      sender: 'Officina Verde', 
+      subject: 'Inquiry: Toner HP 305A', 
+      body: 'Avete disponibilità per i toner HP 305A Black? Ce ne servirebbero 3 pezzi entro fine settimana.',
+      time: '09:45', 
+      channel: 'Telegram',
+      status: 'pending' 
+    },
+    { 
+      id: 3, 
+      sender: 'Marco Bianchi', 
+      subject: 'Order Confirmation', 
+      body: 'L\'ordine è giunto a destinazione, grazie mille per la celerità. Alla prossima!',
+      time: '09:30', 
+      channel: 'Email',
+      status: 'completed' 
+    },
   ]);
 
+  const selectedMessage = messages.find(m => m.id === selectedId);
+
+  const handleSimulateIncoming = async () => {
+    const text = prompt("Inserisci il corpo della missiva simulata:");
+    if (!text) return;
+
+    try {
+      const response = await fetch('http://localhost:8000/api/inbox/messages/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sender: 'Test Mercante',
+          subject: 'Simulation Test',
+          body: text,
+          channel: 'WhatsApp',
+          status: 'new'
+        })
+      });
+
+      if (response.ok) {
+        alert("Missiva inviata con successo al Scriptorium!");
+        // In a real app, we would refresh the list here
+      } else {
+        alert("Errore nell'invio della missiva.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Errore di connessione al backend.");
+    }
+  };
+
   return (
-    <div className="inbox-container animate-fade-in">
-      <header className="module-header">
-        <div>
-          <h1>Messaggero</h1>
-          <p className="medieval-detail">Il crocevia delle missive e delle richieste esterne.</p>
-        </div>
-        <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} />
-          <span>Nuova Missiva</span>
-        </button>
-      </header>
-
-      <div className="inbox-toolbar glass">
-        <div className="search-box">
-          <Search size={18} className="search-icon" />
-          <input type="text" placeholder="Cerca tra i messaggi..." />
-        </div>
-        <div className="toolbar-actions">
-          <button className="btn-secondary">
-            <Filter size={18} />
-            <span>Filtra</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="inbox-content">
-        <div className="glass message-grid">
-          <div className="message-list-header">
-            <span>Mittente</span>
-            <span>Contenuto</span>
-            <span>Canale</span>
-            <span>Stato</span>
-            <span>Azione</span>
+    <div className="inbox-module animate-fade-in">
+      <div className="inbox-sidebar glass-minimal">
+        <div className="inbox-header">
+          <h1>Inbox</h1>
+          <div className="header-actions">
+            <button className="btn-icon-v2" onClick={handleSimulateIncoming} title="Simula Ingressso">
+              <Sparkles size={18} />
+            </button>
+            <button className="btn-icon-v2">
+              <Plus size={18} />
+            </button>
           </div>
+        </div>
+        
+        <div className="inbox-search">
+          <Search size={14} className="search-icon" />
+          <input type="text" placeholder="Search messages..." />
+        </div>
+
+        <div className="message-list-minimal">
           {messages.map((msg) => (
-            <div key={msg.id} className="message-row">
-              <div className="col-sender">
-                <div className="avatar-small">{msg.sender[0]}</div>
-                <span>{msg.sender}</span>
+            <div 
+              key={msg.id} 
+              className={`msg-preview ${selectedId === msg.id ? 'active' : ''}`}
+              onClick={() => setSelectedId(msg.id)}
+            >
+              <div className="msg-preview-header">
+                <span className="msg-sender">{msg.sender}</span>
+                <span className="msg-time">{msg.time}</span>
               </div>
-              <div className="col-body">
-                <p>{msg.body}</p>
-                <span className="time">{msg.time}</span>
-              </div>
-              <div className="col-channel">
-                <span className={`channel-tag ${msg.channel.toLowerCase()}`}>{msg.channel}</span>
-              </div>
-              <div className="col-status">
-                <span className={`status-badge ${msg.status}`}>{msg.status}</span>
-              </div>
-              <div className="col-actions">
-                <button className="btn-icon">
-                  <MoreVertical size={16} />
-                </button>
+              <p className="msg-subject">{msg.subject}</p>
+              <div className="msg-preview-footer">
+                <span className={`status-tag ${msg.status}`}>{msg.status}</span>
+                <span className="msg-channel">{msg.channel}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Manual Message Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="modal-overlay">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="glass modal-content"
-            >
-              <div className="modal-header">
-                <h3>Inserimento Manuale</h3>
-                <button className="btn-close" onClick={() => setIsModalOpen(false)}>
-                  <X size={20} />
+      <div className="inbox-detail">
+        {selectedMessage ? (
+          <>
+            <div className="detail-header glass">
+              <div className="detail-user-info">
+                <div className="user-avatar-large">
+                  <User size={20} />
+                </div>
+                <div>
+                  <h3>{selectedMessage.sender}</h3>
+                  <p className="text-secondary">via {selectedMessage.channel}</p>
+                </div>
+              </div>
+              <div className="detail-actions">
+                <button className="btn-icon-v2"><Archive size={18} /></button>
+                <button className="btn-icon-v2"><Trash2 size={18} /></button>
+                <button className="btn-premium">
+                  <Sparkles size={16} />
+                  <span>Generate Draft</span>
                 </button>
               </div>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label><User size={14} /> Cliente</label>
-                  <input type="text" placeholder="Nome cliente o contatto..." />
+            </div>
+
+            <div className="detail-body">
+              <div className="message-content glass-minimal">
+                <div className="content-meta">
+                  <span className="content-date">Today, {selectedMessage.time}</span>
                 </div>
-                <div className="form-group">
-                  <label><Hash size={14} /> Canale di origine</label>
-                  <select>
-                    <option>WhatsApp</option>
-                    <option>Telefono</option>
-                    <option>Telegram</option>
-                    <option>Manuale</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label><MessageSquare size={14} /> Messaggio ricevuto</label>
-                  <textarea placeholder="Copia qui il testo del messaggio..." rows={5}></textarea>
+                <h2 className="content-subject">{selectedMessage.subject}</h2>
+                <p className="content-text">{selectedMessage.body}</p>
+              </div>
+
+              <div className="reply-area glass-minimal">
+                <textarea placeholder="Write a reply..."></textarea>
+                <div className="reply-footer">
+                  <button className="btn-outline">
+                    <span>Discard</span>
+                  </button>
+                  <button className="btn-premium">
+                    <Send size={16} />
+                    <span>Send Missive</span>
+                  </button>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button className="btn-secondary" onClick={() => setIsModalOpen(false)}>Annulla</button>
-                <button className="btn-primary">
-                  <Send size={16} />
-                  <span>Crea Messaggio</span>
-                </button>
-              </div>
-            </motion.div>
+            </div>
+          </>
+        ) : (
+          <div className="no-selection">
+            <MessageSquare size={48} className="text-muted" />
+            <p>Select a message to view details</p>
           </div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };

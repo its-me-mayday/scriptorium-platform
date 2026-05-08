@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -10,151 +10,100 @@ import {
   History, 
   ShieldCheck, 
   Warehouse,
-  ChevronRight,
   Settings,
-  LogOut,
-  Info
+  Search,
+  ChevronLeft,
+  Menu
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import './Sidebar.css';
 
-const SidebarItem = ({ icon: Icon, label, path, badge = 0, description }: any) => {
+const SidebarItem = ({ icon: Icon, label, path, badge = 0, isCollapsed }: any) => {
   const location = useLocation();
   const active = location.pathname === path;
-  const [showTooltip, setShowTooltip] = useState(false);
 
   return (
-    <div className="sidebar-item-wrapper" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
-      <Link to={path} className={`sidebar-item ${active ? 'active' : ''}`}>
-        <div className="sidebar-item-content">
-          <div className="icon-wrapper">
-            <Icon size={20} />
-          </div>
-          <span>{label}</span>
+    <Link to={path} className={`sidebar-item ${active ? 'active' : ''}`} title={isCollapsed ? label : ''}>
+      <div className="item-content">
+        <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+        {!isCollapsed && <span className="item-label">{label}</span>}
+      </div>
+      {!isCollapsed && badge > 0 && (
+        <div className="item-meta">
+          <span className="item-badge">{badge}</span>
         </div>
-        <div className="sidebar-item-right">
-          {badge > 0 && <span className="sidebar-badge">{badge}</span>}
-          <Info size={14} className="info-trigger" />
-        </div>
-      </Link>
-      
-      <AnimatePresence>
-        {showTooltip && (
-          <motion.div 
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            className="sidebar-tooltip glass"
-          >
-            <p className="tooltip-title">{label}</p>
-            <p className="tooltip-desc">{description}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+      )}
+    </Link>
   );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ isCollapsed, onToggle }: any) => {
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
-        <Link to="/" className="logo-container" style={{ textDecoration: 'none' }}>
-          <div className="logo-icon-medieval">
-            <img src="/Users/lucamaggio/.gemini/antigravity/brain/51016cb2-3910-4ed0-a9c3-5cb4f17cf695/scriptorium_logo_1778237020468.png" alt="S" className="logo-img" />
+        <Link to="/" className="brand-link">
+          <div className="brand-icon">
+            <span className="serif-title">S</span>
           </div>
-          <div className="logo-text-wrapper">
-            <h1 className="logo-text">Scriptorium</h1>
-            <span className="logo-subtitle">Anno Domini MMXXVI</span>
-          </div>
+          {!isCollapsed && (
+            <div className="brand-text">
+              <h1>Scriptorium</h1>
+              <p>Omnichannel Hub</p>
+            </div>
+          )}
         </Link>
+        <button className="collapse-toggle" onClick={onToggle}>
+          {isCollapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
+        </button>
       </div>
 
+      {!isCollapsed && (
+        <div className="sidebar-action">
+          <div className="search-pill">
+            <Search size={14} />
+            <span>Search...</span>
+            <kbd>⌘K</kbd>
+          </div>
+        </div>
+      )}
+
       <nav className="sidebar-nav">
-        <div className="nav-section">
-          <p className="nav-section-title">Dominio Core</p>
-          <SidebarItem 
-            icon={LayoutDashboard} 
-            label="Dashboard" 
-            path="/" 
-            description="La visione d'insieme dello Scriptorium: ordini, messaggi e statistiche vitali."
-          />
-          <SidebarItem 
-            icon={MessageSquare} 
-            label="Messaggero" 
-            path="/messaggero" 
-            badge={5} 
-            description="Il crocevia dove giungono le missive da ogni canale: WhatsApp, Telegram ed Email."
-          />
+        <div className="nav-group">
+          {!isCollapsed && <label>Core</label>}
+          <SidebarItem icon={LayoutDashboard} label="Overview" path="/" isCollapsed={isCollapsed} />
+          <SidebarItem icon={MessageSquare} label="Messages" path="/messaggero" badge={5} isCollapsed={isCollapsed} />
+          <SidebarItem icon={Sparkles} label="Scriba AI" path="/scriba" isCollapsed={isCollapsed} />
+          <SidebarItem icon={PenTool} label="Validations" path="/calamaio" badge={2} isCollapsed={isCollapsed} />
         </div>
 
-        <div className="nav-section">
-          <p className="nav-section-title">Flusso di Lavoro</p>
-          <SidebarItem 
-            icon={Sparkles} 
-            label="Scriba" 
-            path="/scriba" 
-            description="L'assistente alchemico che traduce il linguaggio naturale in bozze d'ordine strutturate."
-          />
-          <SidebarItem 
-            icon={PenTool} 
-            label="Calamaio" 
-            path="/calamaio" 
-            badge={2} 
-            description="L'editor di validazione: dove l'operatore appone il sigillo di conferma sulle bozze."
-          />
+        <div className="nav-group">
+          {!isCollapsed && <label>Management</label>}
+          <SidebarItem icon={Users} label="Customers" path="/archivio" isCollapsed={isCollapsed} />
+          <SidebarItem icon={BookOpen} label="Inventory" path="/tomo" isCollapsed={isCollapsed} />
+          <SidebarItem icon={Warehouse} label="Warehouse" path="/emporio" isCollapsed={isCollapsed} />
         </div>
 
-        <div className="nav-section">
-          <p className="nav-section-title">Gestione Scriptorium</p>
-          <SidebarItem 
-            icon={Users} 
-            label="Archivio" 
-            path="/archivio" 
-            description="Il grande registro dei clienti e dei mercanti, con lo storico completo di ogni interazione."
-          />
-          <SidebarItem 
-            icon={BookOpen} 
-            label="Tomo" 
-            path="/tomo" 
-            description="Il catalogo sacro delle merci e dei prodotti, inclusi alias e varianti."
-          />
-          <SidebarItem 
-            icon={Warehouse} 
-            label="Emporio" 
-            path="/emporio" 
-            description="Il magazzino delle scorte, la gestione del picking e la logistica delle spedizioni."
-          />
-        </div>
-
-        <div className="nav-section">
-          <p className="nav-section-title">Annali e Ordine</p>
-          <SidebarItem 
-            icon={History} 
-            label="Cronica" 
-            path="/cronica" 
-            description="La pergamena infinita del tempo: ogni azione viene registrata per l'eternità."
-          />
-          <SidebarItem 
-            icon={ShieldCheck} 
-            label="Gilda" 
-            path="/gilda" 
-            description="Il consiglio dei maestri: gestione del team, ruoli e permessi d'accesso."
-          />
+        <div className="nav-group">
+          {!isCollapsed && <label>System</label>}
+          <SidebarItem icon={History} label="Audit Trail" path="/cronica" isCollapsed={isCollapsed} />
+          <SidebarItem icon={ShieldCheck} label="Team" path="/gilda" isCollapsed={isCollapsed} />
         </div>
       </nav>
 
       <div className="sidebar-footer">
-        <div className="user-profile">
-          <div className="avatar">LM</div>
-          <div className="user-info">
-            <p className="user-name">Luca Maggio</p>
-            <p className="user-role">Gran Maestro</p>
-          </div>
-        </div>
-        <div className="footer-actions">
-          <Settings size={18} className="footer-icon" />
-          <LogOut size={18} className="footer-icon" />
+        <div className="user-profile-v2">
+          {!isCollapsed ? (
+            <>
+              <div className="user-info">
+                <p className="user-name">Luca Maggio</p>
+                <p className="user-role">Administrator</p>
+              </div>
+              <div className="user-actions">
+                <Settings size={16} />
+              </div>
+            </>
+          ) : (
+            <Settings size={18} />
+          )}
         </div>
       </div>
     </aside>
