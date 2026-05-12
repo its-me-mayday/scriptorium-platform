@@ -17,6 +17,7 @@ import api from '../../services/api';
 import './Inbox.css';
 
 import { useNavigate } from 'react-router-dom';
+import Modal from '../../components/Modal';
 
 const getChannelIcon = (channel: string) => {
   switch (channel.toLowerCase()) {
@@ -96,16 +97,25 @@ const Inbox = () => {
     }, 1500);
   };
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleDeleteMessage = async () => {
     if (!selectedId) return;
-    if (!confirm("Sei sicuro di voler distruggere questa missiva?")) return;
+    setIsDeleteModalOpen(true);
+  };
 
+  const confirmDelete = async () => {
     try {
       await api.delete(`inbox/messages/${selectedId}/`);
       setSelectedId(null);
+      setIsDeleteModalOpen(false);
       fetchMessages();
     } catch (error) {
-      alert("Errore nella distruzione della missiva.");
+      setIsDeleteModalOpen(false);
+      setErrorMessage("Errore nella distruzione della missiva.");
+      setIsErrorModalOpen(true);
     }
   };
 
@@ -226,6 +236,26 @@ const Inbox = () => {
           </div>
         )}
       </div>
+
+      {/* Custom Confirmation Modals */}
+      <Modal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        type="danger"
+        title="Distruzione Missiva"
+        message="Sei sicuro di voler distruggere questa missiva? L'azione è irreversibile e il messaggio verrà rimosso per sempre dallo Scriptorium."
+        confirmText="Sì, Distruggi"
+      />
+
+      <Modal 
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        type="warning"
+        title="Attenzione"
+        message={errorMessage}
+        confirmText="Ho Capito"
+      />
     </div>
   );
 };

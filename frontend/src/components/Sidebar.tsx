@@ -98,24 +98,24 @@ const Sidebar = ({ isCollapsed, onToggle }: any) => {
       <nav className="sidebar-nav">
         <div className="nav-group">
           {!isCollapsed && <label>Core</label>}
-          <SidebarItem icon={LayoutDashboard} label="Overview" path="/" isCollapsed={isCollapsed} />
-          <SidebarItem icon={MessageSquare} label="Messages" path="/messaggero" badge={counts.messages} isCollapsed={isCollapsed} />
+          <SidebarItem icon={LayoutDashboard} label="Sommario" path="/" isCollapsed={isCollapsed} />
+          <SidebarItem icon={MessageSquare} label="Messaggero" path="/messaggero" badge={counts.messages} isCollapsed={isCollapsed} />
           <SidebarItem icon={Sparkles} label="Scriba AI" path="/scriba" isCollapsed={isCollapsed} />
-          <SidebarItem icon={PenTool} label="Validations" path="/calamaio" badge={counts.drafts} isCollapsed={isCollapsed} />
+          <SidebarItem icon={PenTool} label="Calamaio" path="/calamaio" badge={counts.drafts} isCollapsed={isCollapsed} />
         </div>
 
         <div className="nav-group">
           {!isCollapsed && <label>Management</label>}
-          <SidebarItem icon={Users} label="Customers" path="/archivio" isCollapsed={isCollapsed} />
-          <SidebarItem icon={BookOpen} label="Inventory" path="/tomo" isCollapsed={isCollapsed} />
-          <SidebarItem icon={Warehouse} label="Warehouse" path="/emporio" isCollapsed={isCollapsed} />
+          <SidebarItem icon={Users} label="Mercanti" path="/archivio" isCollapsed={isCollapsed} />
+          {/* <SidebarItem icon={BookOpen} label="Tomo" path="/tomo" isCollapsed={isCollapsed} /> */}
+          {/* <SidebarItem icon={Warehouse} label="Emporio" path="/emporio" isCollapsed={isCollapsed} /> */}
         </div>
 
         <div className="nav-group">
           {!isCollapsed && <label>System</label>}
-          <SidebarItem icon={Terminal} label="Simulator" path="/simulatore" isCollapsed={isCollapsed} />
-          <SidebarItem icon={History} label="Audit Trail" path="/cronica" isCollapsed={isCollapsed} />
-          <SidebarItem icon={ShieldCheck} label="Team" path="/gilda" isCollapsed={isCollapsed} />
+          <SidebarItem icon={Terminal} label="Simulatore" path="/simulatore" isCollapsed={isCollapsed} />
+          <SidebarItem icon={History} label="Cronica" path="/cronica" isCollapsed={isCollapsed} />
+          <SidebarItem icon={ShieldCheck} label="Gilda" path="/gilda" isCollapsed={isCollapsed} />
         </div>
       </nav>
 

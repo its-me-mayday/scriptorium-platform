@@ -7,7 +7,7 @@ class OrderDraftItemSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = OrderDraftItem
-        fields = ['id', 'product', 'product_name', 'raw_product_name', 'quantity', 'confidence']
+        fields = ['id', 'product', 'product_name', 'raw_product_name', 'quantity', 'unit', 'confidence']
 
 class OrderDraftSerializer(serializers.ModelSerializer):
     items = OrderDraftItemSerializer(many=True, read_only=True)

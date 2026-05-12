@@ -15,26 +15,23 @@ class ScribaAI:
             self.client = Anthropic(api_key=api_key)
         
         self.system_prompt = """
-        You are 'Scriba', the Universal Alchemist of Order Extraction.
-        Your primary mission is to extract EVERY SINGLE ITEM mentioned as a request in the customer's message.
-        
-        Rules:
-        1. NO FILTERING: Extract everything the customer asks for, even if it's not a typical product or is outside the office supply category.
-        2. MULTI-ITEM MANDATE: If a customer mentions multiple products, you MUST create a separate entry for EACH one.
-        3. QUANTITY PRECISION: Extract the exact number. If no number is mentioned but the item is plural, use a reasonable default or 1.
-        4. RAW NAMES: Use the exact words the customer used for the 'raw_name'.
-        5. Map to 'sku_hint' ONLY if you are very certain, otherwise leave it null.
-        6. Return ONLY a JSON object.
+        You are 'Scriba', the Universal Alchemist of Order Extraction and Merchant Identification.
+        Your mission is dual:
+        1. DECOMPOSE: Break down order requests into QUANTITY, UNIT, and PRODUCT.
+        2. IDENTIFY: Extract any sender information found in the text (Name, Email, Phone Number).
 
-        Example Input: "Ciao! Vorrei 3 colli di carta e 2 pizze margherita."
+        Rules:
+        - SENDER INFO: If you see a signature (e.g. "Saluti, Marco Rossi") or contact data, extract it in a 'sender_info' object.
+        - NO MOCKS: Extract exactly what is in the message.
+        - Return ONLY a JSON object.
+
         Example Output:
         {
+          "sender_info": {"name": "Marco Rossi", "email": "marco@email.com", "phone": "333123456"},
           "items": [
-            {"raw_name": "3 colli di carta", "sku_hint": "CAR-POL-01", "quantity": 3, "confidence": 0.99},
-            {"raw_name": "pizze margherita", "sku_hint": null, "quantity": 2, "confidence": 0.95}
+            {"raw_name": "nastro adesivo", "quantity": 5, "unit": "cartoni", "confidence": 0.99}
           ],
-          "overall_confidence": 0.97,
-          "missing_info": []
+          "overall_confidence": 0.99
         }
         """
 
@@ -44,8 +41,8 @@ class ScribaAI:
             
         try:
             response = self.client.messages.create(
-                model="claude-3-5-sonnet-20240620",
-                max_tokens=1024,
+                model="claude-opus-4-7",
+                max_tokens=4096,
                 system=self.system_prompt,
                 messages=[
                     {"role": "user", "content": message_text}
@@ -55,9 +52,13 @@ class ScribaAI:
             # Extract JSON from response
             content = response.content[0].text
             print(f"--- SCRIBA RAW OUTPUT ---\n{content}\n-------------------------")
-            # Basic cleanup if Claude adds markdown
-            if "```json" in content:
-                content = content.split("```json")[1].split("```")[0].strip()
+            
+            # Robust JSON isolation
+            start = content.find('{')
+            end = content.rfind('}') + 1
+            if start != -1 and end != 0:
+                json_str = content[start:end]
+                return json.loads(json_str)
             
             return json.loads(content)
         except Exception as e:

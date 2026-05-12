@@ -23,39 +23,64 @@ class MessageViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='webhook')
     def webhook(self, request):
         """
-        Universal Webhook for Scriptorium.
-        Accepts: channel, sender, text
+        Universal Webhook for Scriptorium with Detailed Error Reporting.
         """
-        channel = request.data.get('channel', 'whatsapp').lower()
-        sender = request.data.get('sender', 'Unknown Merchant')
-        text = request.data.get('text', '')
+        try:
+            from drafts.models import OrderDraft
+            
+            channel = request.data.get('channel', 'whatsapp').lower()
+            sender = request.data.get('sender', 'Unknown Merchant')
+            text = request.data.get('text', '')
 
-        if not text:
-            return Response({"error": "No text provided"}, status=status.HTTP_400_BAD_REQUEST)
+            if not text:
+                return Response({"error": "No text provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 1. Find or create a conversation for this sender
-        # For simplicity in this demo, we'll use the sender name as a unique key for the conversation
-        conversation, created = Conversation.objects.get_or_create(
-            # Ideally we'd link to a customer here, but for now we just track the conversation
-            id=1 if Conversation.objects.exists() else None, # Fallback to first conv or create
-            defaults={'last_message_at': timezone.now()}
-        )
-        
-        # If no conversation exists at all, create one
-        if not conversation.id:
-            conversation = Conversation.objects.create()
+            # 1. Robust Conversation Management
+            conversation = Conversation.objects.first()
+            if not conversation:
+                conversation = Conversation.objects.create()
+            
+            conversation.last_message_at = timezone.now()
+            conversation.save()
 
-        # 2. Create the message
-        message = Message.objects.create(
-            conversation=conversation,
-            sender=sender,
-            body=text,
-            channel=channel,
-            status='new'
-        )
+            # 2. Create the message
+            message = Message.objects.create(
+                conversation=conversation,
+                sender=sender,
+                body=text,
+                channel=channel,
+                status='new'
+            )
 
-        return Response({
-            "status": "success",
-            "message_id": message.id,
-            "received": text
-        }, status=status.HTTP_201_CREATED)
+            # 3. Create the draft shell
+            draft = OrderDraft.objects.create(message=message)
+            
+            # 4. Async Extraction
+            import threading
+            def run_extraction():
+                try:
+                    from drafts.views import OrderDraftViewSet
+                    draft_viewset = OrderDraftViewSet()
+                    draft_viewset.perform_ai_extraction(draft)
+                    print(f"--- ASYNC EXTRACTION SUCCESS FOR DRAFT {draft.id} ---")
+                except Exception as e:
+                    print(f"--- ASYNC EXTRACTION ERROR: {str(e)} ---")
+
+            thread = threading.Thread(target=run_extraction)
+            thread.start()
+
+            return Response({
+                "status": "success",
+                "message_id": message.id,
+                "draft_id": draft.id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"--- WEBHOOK CRITICAL ERROR ---\n{error_details}")
+            return Response({
+                "status": "error",
+                "message": str(e),
+                "details": error_details
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
