@@ -19,36 +19,43 @@ const Scriba = () => {
     successRate: 0
   });
   const [logs, setLogs] = useState<any[]>([]);
+  const [aiStatus, setAiStatus] = useState<any>(null);
 
   useEffect(() => {
     const fetchScribaData = async () => {
       try {
-        const drafts = await api.get('drafts/');
-        const total = drafts.data.length;
-        const avg = drafts.data.length > 0 
-          ? drafts.data.reduce((acc: number, d: any) => acc + d.confidence, 0) / total 
+        const [draftsRes, aiStatusRes] = await Promise.all([
+          api.get('drafts/'),
+          api.get('drafts/ai_status/')
+        ]);
+        
+        const drafts = draftsRes.data;
+        const total = drafts.length;
+        const avg = total > 0 
+          ? drafts.reduce((acc: number, d: any) => acc + d.confidence, 0) / total 
           : 0;
         
         setStats({
           totalProcessed: total,
           avgConfidence: Math.round(avg * 100),
-          successRate: 94 // Mocked for now
+          successRate: 94 
         });
 
-        // Use drafts as logs of what Scriba has done
-        setLogs(drafts.data.slice(0, 10).map((d: any) => ({
+        setAiStatus(aiStatusRes.data);
+
+        setLogs(drafts.slice(0, 10).map((d: any) => ({
           id: d.id,
           time: new Date(d.created_at).toLocaleTimeString(),
           action: 'Extraction Successful',
-          details: `Identified ${d.items?.length || 0} items for ${d.message_details?.sender}`,
+          details: `Identified ${d.items?.length || 0} items for ${d.customer_details?.name || 'Mercante'}`,
           confidence: Math.round(d.confidence * 100)
         })));
       } catch (error) {
-        console.error("Error fetching Scriba stats:", error);
+        console.error("Error fetching Scriba data:", error);
       }
     };
     fetchScribaData();
-    const interval = setInterval(fetchScribaData, 10000);
+    const interval = setInterval(fetchScribaData, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -56,34 +63,79 @@ const Scriba = () => {
     <div className="scriba-module animate-fade-in">
       <header className="module-header">
         <div className="title-group">
-          <div className="ai-badge">
+          <div className={`ai-badge ${aiStatus?.connectivity.status === 'CONNECTED' ? 'online' : 'offline'}`}>
             <Zap size={14} />
-            <span>Claude 3.5 Sonnet Active</span>
+            <span>{aiStatus?.connectivity.status || 'Checking...'}</span>
           </div>
           <h1 className="serif-title">Scriba AI Core</h1>
           <p className="text-secondary">Neural Governance & Semantic Extraction Engine</p>
         </div>
         <div className="header-status">
           <div className="status-item">
-            <Activity size={16} color="#10b981" />
-            <span>Systems Nominal</span>
+            <Activity size={16} className={aiStatus?.connectivity.status === 'CONNECTED' ? 'text-success' : 'text-danger'} />
+            <span>{aiStatus?.connectivity.status === 'CONNECTED' ? 'Neural Bridge Active' : 'Neural Bridge Severed'}</span>
           </div>
         </div>
       </header>
 
       <div className="scriba-dashboard">
+        <div className="scriba-neural-panel card-layered">
+          <div className="panel-header">
+            <h3><Brain size={18} /> Neural Capacity</h3>
+            <span className="model-tag">{aiStatus?.connectivity.model || 'Unknown Model'}</span>
+          </div>
+          
+          <div className="neural-content">
+            <div className="token-gauge-wrapper">
+              <svg viewBox="0 0 100 100" className="token-gauge">
+                <circle className="gauge-bg" cx="50" cy="50" r="45" />
+                <circle 
+                  className="gauge-fill" 
+                  cx="50" cy="50" r="45" 
+                  style={{ 
+                    strokeDasharray: '282.7', 
+                    strokeDashoffset: `${282.7 * (1 - (aiStatus?.usage.percentage / 100 || 0))}` 
+                  }} 
+                />
+              </svg>
+              <div className="gauge-text">
+                <span className="g-value">{aiStatus?.usage.percentage || 0}%</span>
+                <span className="g-label">Token Usati</span>
+              </div>
+            </div>
+            
+            <div className="neural-details">
+              <div className="n-stat">
+                <span className="l">Modello Attivo</span>
+                <span className="v">{aiStatus?.connectivity?.model ? aiStatus.connectivity.model.split('-').slice(0,3).join(' ') : '...'}</span>
+              </div>
+              <div className="n-stat">
+                <span className="l">Context Window</span>
+                <span className="v">{aiStatus ? `${aiStatus.usage.limit / 1000}k` : '...'} Tokens</span>
+              </div>
+              <div className="n-stat">
+                <span className="l">Provider</span>
+                <span className="v">{aiStatus?.connectivity.provider || '...'}</span>
+              </div>
+              <div className="token-limit-info">
+                Hai utilizzato circa <strong>{aiStatus?.usage.tokens_used.toLocaleString() || 0}</strong> token basati sul volume storico dei messaggi.
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="scriba-stats">
-          <div className="s-card card-layered">
+          <div className="s-card glass-minimal">
             <Cpu size={24} />
             <span className="s-label">Total Extractions</span>
             <h2 className="s-value">{stats.totalProcessed}</h2>
           </div>
-          <div className="s-card card-layered">
+          <div className="s-card glass-minimal">
             <Brain size={24} />
             <span className="s-label">Avg. Confidence</span>
             <h2 className="s-value">{stats.avgConfidence}%</h2>
           </div>
-          <div className="s-card card-layered">
+          <div className="s-card glass-minimal">
             <Sparkles size={24} />
             <span className="s-label">IA Accuracy</span>
             <h2 className="s-value">{stats.successRate}%</h2>

@@ -157,14 +157,24 @@
 
 .nav-group label {
   display: block;
-  font-family: 'Outfit', sans-serif;
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-muted);
-  font-weight: 700;
   margin-bottom: 0.75rem;
-  padding: 0 0.5rem;
+  padding-left: 1.25rem;
+  font-weight: 700;
+}
+
+.admin-group {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.admin-label {
+  color: #f59e0b !important; /* Amber-Gold for Admin */
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
 
 .sidebar-item {

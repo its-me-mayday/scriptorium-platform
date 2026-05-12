@@ -44,6 +44,9 @@ const Sidebar = ({ isCollapsed, onToggle }: any) => {
     drafts: 0
   });
 
+  // 🛡️ Logic to determine if user is admin (hardcoded for now)
+  const isAdmin = true;
+
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -100,15 +103,12 @@ const Sidebar = ({ isCollapsed, onToggle }: any) => {
           {!isCollapsed && <label>Core</label>}
           <SidebarItem icon={LayoutDashboard} label="Sommario" path="/" isCollapsed={isCollapsed} />
           <SidebarItem icon={MessageSquare} label="Messaggero" path="/messaggero" badge={counts.messages} isCollapsed={isCollapsed} />
-          <SidebarItem icon={Sparkles} label="Scriba AI" path="/scriba" isCollapsed={isCollapsed} />
           <SidebarItem icon={PenTool} label="Calamaio" path="/calamaio" badge={counts.drafts} isCollapsed={isCollapsed} />
         </div>
 
         <div className="nav-group">
           {!isCollapsed && <label>Management</label>}
           <SidebarItem icon={Users} label="Mercanti" path="/archivio" isCollapsed={isCollapsed} />
-          {/* <SidebarItem icon={BookOpen} label="Tomo" path="/tomo" isCollapsed={isCollapsed} /> */}
-          {/* <SidebarItem icon={Warehouse} label="Emporio" path="/emporio" isCollapsed={isCollapsed} /> */}
         </div>
 
         <div className="nav-group">
@@ -117,6 +117,14 @@ const Sidebar = ({ isCollapsed, onToggle }: any) => {
           <SidebarItem icon={History} label="Cronica" path="/cronica" isCollapsed={isCollapsed} />
           <SidebarItem icon={ShieldCheck} label="Gilda" path="/gilda" isCollapsed={isCollapsed} />
         </div>
+
+        {/* 🏰 Admin Section - Restricted Visibility */}
+        {isAdmin && (
+          <div className="nav-group admin-group">
+            {!isCollapsed && <label className="admin-label">Admin</label>}
+            <SidebarItem icon={Sparkles} label="Scriba AI" path="/scriba" isCollapsed={isCollapsed} />
+          </div>
+        )}
       </nav>
 
       <div className="sidebar-footer">

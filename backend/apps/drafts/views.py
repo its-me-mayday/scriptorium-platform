@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import OrderDraft, OrderDraftItem
 from .serializers import OrderDraftSerializer
@@ -21,6 +22,22 @@ class OrderDraftViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         draft = serializer.save()
         self.perform_ai_extraction(draft)
+
+    @action(detail=False, methods=['get'])
+    def ai_status(self, request):
+        from inbox.models import Message
+        status_info = scriba.get_status()
+        
+        # Calculate total characters in all messages for realistic token estimation
+        all_messages = Message.objects.all()
+        total_chars = sum([len(m.body) for m in all_messages])
+        
+        token_info = scriba.get_token_usage_estimate(total_chars)
+        
+        return Response({
+            "connectivity": status_info,
+            "usage": token_info
+        })
 
     def perform_ai_extraction(self, draft):
         """

@@ -126,15 +126,30 @@ const Simulatore = () => {
               <Zap size={18} />
               <span>{isSending ? 'Inviando...' : 'Invia allo Scriptorium'}</span>
             </button>
-
-            <button type="submit" className="btn-premium w-full" disabled={isSending}>
-              <Zap size={18} />
-              <span>{isSending ? 'Inviando...' : 'Invia allo Scriptorium'}</span>
-            </button>
           </form>
         </div>
 
-        {/* ... existing code ... */}
+        <div className="simulator-info">
+          <div className="info-card glass-minimal">
+            <h3><ShieldCheck size={18} /> Come Funziona</h3>
+            <p>Questo strumento bypassa i server di Meta, Telegram o Gmail e inietta i dati direttamente nel **Webhook Universale** dello Scriptorium.</p>
+            <ul>
+              <li><strong>Canale</strong>: Definisce l'estetica e l'icona nell'Inbox.</li>
+              <li><strong>Mittente</strong>: Verrà usato per creare la Conversazione.</li>
+              <li><strong>Testo</strong>: È la "materia prima" per l'Alchimista Scriba (Claude).</li>
+            </ul>
+          </div>
+          <div className="info-card glass-minimal code-preview">
+            <h3><Terminal size={18} /> JSON Payload</h3>
+            <pre>
+{`{
+  "channel": "${channel}",
+  "sender": "${sender || '...'}",
+  "text": "${text || '...'}"
+}`}
+            </pre>
+          </div>
+        </div>
       </div>
 
       <Modal 
